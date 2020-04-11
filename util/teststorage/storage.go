@@ -14,14 +14,24 @@
 package teststorage
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/prometheus/storage"
 	"github.com/prometheus/prometheus/tsdb"
 	"github.com/prometheus/prometheus/util/testutil"
 )
+
+var RetainStorageAfterTest bool
+
+func init() {
+	if retainStorageStr, ok := os.LookupEnv("RETAIN_TEST_STORAGE"); ok {
+		RetainStorageAfterTest, _ = strconv.ParseBool(retainStorageStr)
+	}
+}
 
 // New returns a new storage for testing purposes
 // that removes all associated files on closing.
@@ -52,5 +62,10 @@ func (s testStorage) Close() error {
 	if err := s.Storage.Close(); err != nil {
 		return err
 	}
+	if RetainStorageAfterTest {
+		fmt.Printf("Storage can be found at %s\n", s.dir)
+		return nil
+	}
+
 	return os.RemoveAll(s.dir)
 }

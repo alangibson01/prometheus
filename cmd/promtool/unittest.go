@@ -16,6 +16,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/prometheus/prometheus/util/teststorage"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -81,6 +82,9 @@ func ruleUnitTest(filename string) []error {
 
 	// Bounds for evaluating the rules.
 	mint := time.Unix(0, 0).UTC()
+	if teststorage.RetainStorageAfterTest {
+		mint = time.Now().UTC()
+	}
 	maxd := unitTestInp.maxEvalTime()
 	maxt := mint.Add(maxd)
 	// Rounding off to nearest Eval time (> maxt).

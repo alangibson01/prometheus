@@ -39,13 +39,18 @@ var (
 	patSpace       = regexp.MustCompile("[\t ]+")
 	patLoad        = regexp.MustCompile(`^load\s+(.+?)$`)
 	patEvalInstant = regexp.MustCompile(`^eval(?:_(fail|ordered))?\s+instant\s+(?:at\s+(.+?))?\s+(.+)$`)
+	testStartTime  = time.Unix(0, 0).UTC()
 )
+
+func init() {
+	if teststorage.RetainStorageAfterTest {
+		testStartTime = time.Now().UTC()
+	}
+}
 
 const (
 	epsilon = 0.000001 // Relative error allowed for sample values.
 )
-
-var testStartTime = time.Unix(0, 0).UTC()
 
 // Test is a sequence of read and write commands that are run
 // against a test storage.
